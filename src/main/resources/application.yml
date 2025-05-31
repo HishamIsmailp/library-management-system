@@ -4,8 +4,8 @@ spring:
   
   datasource:
     url: jdbc:postgresql://localhost:5432/library_management_db
-    username: ${DB_USERNAME:library_user}
-    password: ${DB_PASSWORD:library_password}
+    username: ${DB_USERNAME:kiebotmac}
+    password: ${DB_PASSWORD:kiebot@123}
     driver-class-name: org.postgresql.Driver
   
   jpa:
@@ -17,10 +17,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
   
-  security:
-    user:
-      name: admin
-      password: admin123
+
   
   mail:
     host: smtp.gmail.com

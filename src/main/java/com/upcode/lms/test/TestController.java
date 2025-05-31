@@ -37,6 +37,24 @@ public class TestController {
         return ResponseEntity.ok(ApiResponse.success(status, "Application status retrieved"));
     }
 
+    @GetMapping("/auth-status")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getAuthStatus() {
+        log.info("GET /test/auth-status");
+        
+        Map<String, Object> authStatus = new HashMap<>();
+        authStatus.put("isAuthenticated", SecurityUtils.isAuthenticated());
+        authStatus.put("isAnonymous", SecurityUtils.isAnonymous());
+        authStatus.put("securityEnabled", true);
+        authStatus.put("loginPageDisabled", true);
+        
+        if (SecurityUtils.isAuthenticated()) {
+            authStatus.put("username", SecurityUtils.getCurrentUsername().orElse("unknown"));
+            authStatus.put("role", SecurityUtils.getCurrentUserRole().orElse(null));
+        }
+        
+        return ResponseEntity.ok(ApiResponse.success(authStatus, "Authentication status retrieved"));
+    }
+
     @GetMapping("/current-user")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getCurrentUser() {

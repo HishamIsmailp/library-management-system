@@ -5,9 +5,10 @@
 ### ✅ **Complete Foundation**
 - **Spring Boot 3.2.5** with Java 17
 - **PostgreSQL** database with complete schema
-- **JWT Authentication** with role-based security
+- **JWT Authentication** with role-based security (no login page)
 - **Auto-Documentation** with SpringDoc OpenAPI
 - **Sample Data** with default users and categories
+- **Stateless Security** - API-only, no form login redirects
 
 ### ✅ **Key Features Working**
 - **SecurityUtils** - Get current user, check roles, enforce permissions
@@ -15,6 +16,7 @@
 - **Complete Category API** - Full CRUD example following best practices
 - **Database Design** - Professional schema with 10 tables and relationships
 - **Error Handling** - Global exception handler with proper HTTP responses
+- **API Security** - Stateless JWT, no login page, JSON error responses
 
 ## 🏃‍♂️ Quick Setup (5 Minutes)
 
@@ -37,8 +39,10 @@ psql -U library_user -d library_management_db -f database/setup.sql
 
 ### 4. **Test Everything Works**
 - **Swagger UI**: http://localhost:8080/api/swagger-ui.html
-- **Test API**: http://localhost:8080/api/test/hello
-- **Categories**: http://localhost:8080/api/categories
+- **Test API**: http://localhost:8080/api/test/hello (public)
+- **Categories**: http://localhost:8080/api/categories (public)
+- **Auth Status**: http://localhost:8080/api/test/auth-status (public)
+- **Current User**: http://localhost:8080/api/test/current-user (protected - returns 401)
 
 ## 👥 Team Tasks (No Confusion)
 
@@ -81,7 +85,7 @@ psql -U library_user -d library_management_db -f database/setup.sql
 
 ### **SecurityUtils Examples**
 ```java
-// Get current user info
+// Get current user info (works with JWT authentication)
 User currentUser = SecurityUtils.getCurrentUserOrThrow();
 Long userId = SecurityUtils.getCurrentUserIdOrThrow();
 Role userRole = SecurityUtils.getCurrentUserRoleOrThrow();
@@ -94,6 +98,12 @@ boolean canAccess = SecurityUtils.canAccessUserResource(userId);
 SecurityUtils.ensureStaff(); // Throws exception if not admin/librarian
 SecurityUtils.ensureCanAccessUserResource(userId);
 ```
+
+### **Security Configuration**
+- ✅ **No Login Page** - Direct JSON responses for unauthorized access
+- ✅ **Public Endpoints** - Categories, test endpoints, Swagger UI
+- ✅ **Protected Endpoints** - Return 401 JSON instead of redirect
+- ✅ **Role-Based Access** - @PreAuthorize annotations work perfectly
 
 ### **Controller Pattern**
 ```java
@@ -124,17 +134,20 @@ public class YourController {
 
 ## 🎯 Success Checklist
 - [ ] Application starts without errors
-- [ ] Can access Swagger UI
+- [ ] Can access Swagger UI without login redirect
 - [ ] Default users exist in database
-- [ ] Test endpoints respond
-- [ ] Can authenticate and get current user info
+- [ ] Public endpoints work: `/test/hello`, `/categories`
+- [ ] Protected endpoints return 401 JSON: `/test/current-user`
+- [ ] No login page shown for unauthorized access
 
 ## 📚 Key Files to Study
 1. **CategoryController.java** - Clean controller pattern
 2. **CategoryService.java** - Business logic with security
 3. **SecurityUtils.java** - All security utilities
-4. **CategoryRepository.java** - Comprehensive query examples
-5. **database/setup.sql** - Complete database schema
+4. **SecurityConfig.java** - Stateless JWT configuration
+5. **CategoryRepository.java** - Comprehensive query examples
+6. **database/setup.sql** - Complete database schema
+7. **SECURITY_SETUP_GUIDE.md** - Complete security documentation
 
 ## 🚨 Important Notes
 - **No duplicate controllers** - Only one clean example
@@ -142,5 +155,7 @@ public class YourController {
 - **SecurityUtils everywhere** - Use for all permission checks
 - **Follow patterns** - Copy Category module structure
 - **Focus on functionality** - Documentation generates automatically
+- **No login page** - API returns JSON responses, no redirects
+- **Stateless security** - JWT-based, no sessions or form login
 
 **Everything builds successfully and is ready for development!** 🚀
