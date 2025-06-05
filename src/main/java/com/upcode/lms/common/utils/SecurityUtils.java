@@ -59,7 +59,7 @@ public class SecurityUtils {
     /**
      * Get current user's ID
      */
-    public static Optional<Long> getCurrentUserId() {
+    public static User getCurrentUserId() {
         return getCurrentUser()
                 .map(User::getId);
     }

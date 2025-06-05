@@ -140,7 +140,7 @@ public class UserContextController {
         
         Map<String, Object> accessInfo = new HashMap<>();
         accessInfo.put("userId", userId);
-        accessInfo.put("currentUserId", SecurityUtils.getCurrentUserId().orElse(null));
+        accessInfo.put("currentUserId", SecurityUtils.getCurrentUserId());
         accessInfo.put("canAccess", SecurityUtils.canAccessUserResource(userId));
         accessInfo.put("isOwner", SecurityUtils.isResourceOwner(userId));
         accessInfo.put("canModify", SecurityUtils.canModifyResource(userId));
@@ -221,7 +221,7 @@ public class UserContextController {
         
         if (SecurityUtils.isAuthenticated()) {
             authStatus.put("username", SecurityUtils.getCurrentUsername().orElse(null));
-            authStatus.put("userId", SecurityUtils.getCurrentUserId().orElse(null));
+            authStatus.put("userId", SecurityUtils.getCurrentUserId());
             authStatus.put("role", SecurityUtils.getCurrentUserRole().orElse(null));
         }
         

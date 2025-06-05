@@ -62,7 +62,7 @@ public class TestController {
         
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("username", SecurityUtils.getCurrentUsername().orElse("unknown"));
-        userInfo.put("userId", SecurityUtils.getCurrentUserId().orElse(null));
+        userInfo.put("userId", SecurityUtils.getCurrentUserId());
         userInfo.put("role", SecurityUtils.getCurrentUserRole().orElse(null));
         userInfo.put("isAdmin", SecurityUtils.isAdmin());
         userInfo.put("isLibrarian", SecurityUtils.isLibrarian());
