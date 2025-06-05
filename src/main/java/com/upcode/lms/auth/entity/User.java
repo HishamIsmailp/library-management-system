@@ -77,6 +77,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "role", nullable = false)
     private Role role;
 
+    @OneToOne(mappedBy = "user")
+    private ForgotPassword forgotPassword;
+
     @Builder.Default
     @Column(name = "is_account_non_expired")
     private Boolean accountNonExpired = true;
