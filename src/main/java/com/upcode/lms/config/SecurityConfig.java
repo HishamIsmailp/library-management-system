@@ -36,40 +36,41 @@ public class SecurityConfig {
         http
             // Disable CSRF for REST API
             .csrf(AbstractHttpConfigurer::disable)
-            
+
             // Disable form login and default login page
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
-            
+
             // Configure CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
+
             // Set session management to stateless (for JWT)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
+
             // Configure authorization rules
             .authorizeHttpRequests(authz -> authz
                 // Public endpoints - no authentication required
                 .requestMatchers(HttpMethod.GET, "/test/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/books/**").permitAll()
-                
+                .requestMatchers("/books/**").permitAll()
+
                 // Swagger/OpenAPI endpoints
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
-                
+
                 // Authentication endpoints
                 .requestMatchers("/auth/login", "/auth/register", "/auth/forgot-password").permitAll()
-                
+
                 // Health check and actuator
                 .requestMatchers("/actuator/**").permitAll()
-                
+
                 // Static resources
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
-                
+
                 // Admin only endpoints
                 .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                
+
                 // Staff (Admin + Librarian) endpoints
                 .requestMatchers(HttpMethod.POST, "/categories/**").hasAnyRole("ADMIN", "LIBRARIAN")
                 .requestMatchers(HttpMethod.PUT, "/categories/**").hasAnyRole("ADMIN", "LIBRARIAN")
@@ -78,11 +79,11 @@ public class SecurityConfig {
                 .requestMatchers("/transactions/**").hasAnyRole("ADMIN", "LIBRARIAN")
                 .requestMatchers("/fines/**").hasAnyRole("ADMIN", "LIBRARIAN")
                 .requestMatchers("/reports/**").hasAnyRole("ADMIN", "LIBRARIAN")
-                
+
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )
-            
+
             // Handle authentication exceptions
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, authException) -> {
@@ -121,7 +122,7 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(Arrays.asList("Authorization", "X-Total-Count"));
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

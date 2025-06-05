@@ -4,8 +4,8 @@ spring:
   
   datasource:
     url: jdbc:postgresql://localhost:5432/library_management_db
-    username: ${DB_USERNAME:kiebotmac}
-    password: ${DB_PASSWORD:kiebot@123}
+    username: ${DB_USERNAME:library}
+    password: ${DB_PASSWORD:123}
     driver-class-name: org.postgresql.Driver
   
   jpa:

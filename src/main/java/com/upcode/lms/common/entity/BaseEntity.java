@@ -14,22 +14,22 @@ import java.time.LocalDateTime;
 @Setter
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    
+
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
+
     @Column(name = "is_active")
     private Boolean isActive = true;
-    
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
@@ -42,9 +42,23 @@ public abstract class BaseEntity {
             isActive = true;
         }
     }
-    
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public void setIsActive(boolean b) {
+    }
+
+    public boolean getIsActive() {
+        return this.isActive != null && this.isActive;
+    }
+
+    public void setCreatedBy(Long aLong) {
+        
+    }
+
+    public void setUpdatedBy(Long aLong) {
     }
 }
