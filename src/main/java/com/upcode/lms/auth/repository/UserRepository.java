@@ -2,6 +2,7 @@ package com.upcode.lms.auth.repository;
 
 import com.upcode.lms.auth.entity.Role;
 import com.upcode.lms.auth.entity.User;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -135,4 +136,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("DELETE FROM User u WHERE u.emailVerified = false AND u.createdAt < :cutoffDate AND u.emailVerificationToken IS NOT NULL")
     void deleteUnverifiedUsersOlderThan(@Param("cutoffDate") LocalDateTime cutoffDate);
+
+    @Transactional
+    @Modifying
+    @Query("update User u set u.password = ?2 where u.email = ?1 ")
+    void updatePassword(String email, String password);
 }
