@@ -4,8 +4,8 @@ spring:
   
   datasource:
     url: jdbc:postgresql://localhost:5432/library_management_db
-    username: ${DB_USERNAME:kiebotmac}
-    password: ${DB_PASSWORD:kiebot@123}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:Rashid@123}
     driver-class-name: org.postgresql.Driver
   
   jpa:
@@ -22,8 +22,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${EMAIL_USERNAME:}
-    password: ${EMAIL_PASSWORD:}
+    username: ${EMAIL_USERNAME:mhdrashid142@gmail.com}
+    password: ${EMAIL_PASSWORD:ejpfheaqjtyuvtuc}
     properties:
       mail:
         smtp:

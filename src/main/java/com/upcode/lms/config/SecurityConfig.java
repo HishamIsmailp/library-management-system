@@ -1,6 +1,6 @@
 package com.upcode.lms.config;
 
-import com.upcode.lms.auth.service.UserDetailsServiceImpl;
+import com.upcode.lms.auth.service.UserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
     @Bean
@@ -53,7 +53,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/test/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/books/**").permitAll()
-                
+                .requestMatchers("/auth/user/register", "/auth/user/**").permitAll()
+                .requestMatchers("/forgotPassword","/forgotPassword/**").permitAll()
                 // Swagger/OpenAPI endpoints
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
                 

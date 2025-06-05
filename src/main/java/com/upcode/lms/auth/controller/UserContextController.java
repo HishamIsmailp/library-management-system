@@ -1,7 +1,9 @@
 package com.upcode.lms.auth.controller;
 
+import com.upcode.lms.auth.dto.UserProfileDto;
 import com.upcode.lms.auth.entity.Role;
 import com.upcode.lms.auth.entity.User;
+import com.upcode.lms.auth.service.UserDetailsService;
 import com.upcode.lms.common.dto.ApiResponse;
 import com.upcode.lms.common.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +12,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +24,20 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/auth/user-context")
+@RequestMapping("/auth/user")
 @RequiredArgsConstructor
 @Tag(name = "User Context", description = "APIs for getting current user information")
 public class UserContextController {
+
+    private final UserDetailsService userDetailsService;
 
     @Operation(
         summary = "Get current user information",
         description = "Retrieve information about the currently authenticated user",
         security = @SecurityRequirement(name = "Bearer Authentication")
     )
+
+
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200",
@@ -39,28 +48,30 @@ public class UserContextController {
             description = "Unauthorized - No valid authentication token"
         )
     })
+
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getCurrentUser() {
-        log.info("GET /auth/user-context/me - User: {}", SecurityUtils.getCurrentUsername().orElse("unknown"));
+    public ResponseEntity<ApiResponse<UserProfileDto>> getCurrentUser() {
+        log.info("GET /auth/user/me - User: {}", SecurityUtils.getCurrentUsername().orElse("unknown"));
         
         User currentUser = SecurityUtils.getCurrentUserOrThrow();
         
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("id", currentUser.getId());
-        userInfo.put("username", currentUser.getUsername());
-        userInfo.put("email", currentUser.getEmail());
-        userInfo.put("fullName", currentUser.getFullName());
-        userInfo.put("firstName", currentUser.getFirstName());
-        userInfo.put("lastName", currentUser.getLastName());
-        userInfo.put("role", currentUser.getRole());
-        userInfo.put("studentId", currentUser.getStudentId());
-        userInfo.put("phoneNumber", currentUser.getPhoneNumber());
-        userInfo.put("isEmailVerified", currentUser.getEmailVerified());
-        userInfo.put("lastLogin", currentUser.getLastLogin());
-        userInfo.put("createdAt", currentUser.getCreatedAt());
+        UserProfileDto userDto = new UserProfileDto(
+                currentUser.getId(),
+                currentUser.getUsername(),
+                currentUser.getEmail(),
+                currentUser.getFullName(),
+                currentUser.getFirstName(),
+                currentUser.getLastName(),
+                currentUser.getRole(),
+                currentUser.getPhoneNumber(),
+                currentUser.getEmailVerified(),
+                currentUser.getLastLogin(),
+                currentUser.getCreatedAt()
+        );
+
         
-        return ResponseEntity.ok(ApiResponse.success(userInfo, "Current user information retrieved successfully"));
+        return ResponseEntity.ok(ApiResponse.success(userDto, "Current user information retrieved successfully"));
     }
 
     @Operation(
@@ -130,6 +141,7 @@ public class UserContextController {
         description = "Check if the current user can access a specific user's resource",
         security = @SecurityRequirement(name = "Bearer Authentication")
     )
+
     @GetMapping("/can-access/{userId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Map<String, Object>>> checkResourceAccess(
@@ -149,11 +161,35 @@ public class UserContextController {
         return ResponseEntity.ok(ApiResponse.success(accessInfo, "Resource access information retrieved"));
     }
 
+
     @Operation(
-        summary = "Admin only endpoint",
-        description = "Endpoint accessible only by administrators",
-        security = @SecurityRequirement(name = "Bearer Authentication")
+            summary = "Search users by keyword",
+            description = "Search users by name, username, email, or student ID (case-insensitive).",
+            security = @SecurityRequirement(name = "Bearer Authentication")
     )
+
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> searchUsers(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        log.info("GET /auth/user/search - Search keyword: {}", keyword);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> usersPage = userDetailsService.searchUsers(keyword, pageable);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("users", usersPage.getContent());
+        response.put("currentPage", usersPage.getNumber());
+        response.put("totalItems", usersPage.getTotalElements());
+        response.put("totalPages", usersPage.getTotalPages());
+
+        return ResponseEntity.ok(ApiResponse.success(response, "Users retrieved successfully"));
+    }
+
+
     @GetMapping("/admin-only")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<String>> adminOnlyEndpoint() {
@@ -209,7 +245,7 @@ public class UserContextController {
 
     @Operation(
         summary = "Get authentication status",
-        description = "Check the current authentication status and basic info"
+            description = "Check the current authentication status and basic info"
     )
     @GetMapping("/auth-status")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getAuthStatus() {
